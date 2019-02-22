@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta name="viewport" content="width=device-width">
+<title>舞雨百句</title>
+<style>
+body {
+  text-align: center;
+  background-color: #344344;
+}
+textarea {
+  width:70%;
+  text-align: center;
+}
+.glow {
+  animation: glow 1s ease 0s 1 alternate none running;
+}
+@keyframes glow{
+   0% { color:black; }
+  50% { color:red; }
+ 100% { color:black; }
+}
+//#memoryarea>span {
+//    display:inline-block;
+//    width:30px;
+//}
+#background1 {
+    position:fixed;
+    z-index:-1;
+    left:50%;
+    width:500px;
+    height:500px;
+    left:50%;
+    top:20px;
+    animation: slowrotate 20s linear infinite;
+}
+#background2 {
+    position:fixed;
+    z-index:-1;
+    left:50%;
+    width:500px;
+    height:500px;
+    left:-20px;
+    top:420px;
+    animation: reverserotate 20s linear infinite;
+}
+@keyframes slowrotate{
+      0% { transform: rotate(  0deg); }
+     50% { transform: rotate( 60deg); }
+    100% { transform: rotate(120deg); }
+}
+@keyframes reverserotate{
+      0% { transform: rotate(   0deg); }
+     50% { transform: rotate(-60deg); }
+    100% { transform: rotate(-120deg); }
+}
+</style>
+</head>
+<body>
+<div id="background1">
+<svg width="500px" height="500px">
+    <circle cx="250" cy="250" r="230" fill="none" stroke="black"/>
+    <circle cx="250" cy="250" r="240" fill="none" stroke="black"/>
+    <g id="david1">
+    <polygon points="250,20  449.196,365 50.814,365" fill="none" stroke="black"/
+>
+    <polygon points="250,480 449.196,135 50.814,135" fill="none" stroke="black"/
+>
+    </g>
+</svg>
+</div>
+<div id="background2">
+<svg width="500px" height="500px">
+    <circle cx="250" cy="250" r="230" fill="none" stroke="black"/>
+    <circle cx="250" cy="250" r="240" fill="none" stroke="black"/>
+    <g id="david2">
+    <polygon points="250,20  449.196,365 50.814,365" fill="none" stroke="black"/
+>
+    <polygon points="250,480 449.196,135 50.814,135" fill="none" stroke="black"/
+>
+    </g>
+</svg>
+</div>
+<h1 id="title">舞雨百句</h1>
+<h3>
+    <ruby>算法認<rt>プログラミング</rt></ruby>とは、
+    <ruby>詠<rt>うた</rt></ruby>うことと見つけたり
+</h3>
+<div>
+<button onclick="sample();">第一歌（サンプル）</button>
+</div>
+<div>
+<textarea id="spellarea" rows="12">
+</textarea>
+</div>
+<button onclick="reset();">修祓</button>
+<button onclick="brand();">烙込</button>
+<div id="displayarea"></div>
+<div id="memoryarea"><span id="memtarget"></span></div>
+<button id="reciteButton" onclick="recite();">詠唱</button>
+<div><span id="outputarea"></span></div>
+
+<script>
+
+function sample(){
+document.getElementById('spellarea').textContent =
+'静寂なき虚、安息なき現、光なき三界照らし' + '\n' +
+'顕在し潜在し、法則に順ず、明く燦する。' + '\n' +
+'答えず、応へず、絶えず跪け。' + '\n' +
+'下に下に、朝に骸ひとり暗し。' + '\n' +
+'四大に叛く大罪に応報、劈く嘴、曇天を突く尖塔。' + '\n' +
+'屍こそ平穏、咎を纏ひしを高く讃する唄、' + '\n' +
+'蒼く天蓋、其は抗う熾天、腕なき主に傅く。' + '\n' +
+'黒く呻けき獣、騒めきの紅き炎よ。' + '\n' +
+'諧謔狂おしき饗宴は再臨する。' + '\n' +
+'十層深きに君臨する絶望苦を双眸に視よ若き旅人よ！' + '\n' +
+'『第一歌；一切の希を棄てよ』！！！';
+}
+
+function reset(){
+    document.getElementById("displayarea").textContent="";
+    var mem0 = document.createElement('span');
+    mem0.id="memtarget";
+    var memarea = document.getElementById("memoryarea");
+    memarea.textContent=""; memarea.appendChild(mem0);
+    document.getElementById("outputarea").textContent="";
+    document.getElementById('reciteButton').disabled=false;
+}
+
+function brand(){
+    reset();
+    let spell = document.getElementById("spellarea").value;
+    spell = spell.replace(/『[^』]*』|（[^）]*）/g,"");
+    const lines = spell.split('\n');
+    const displayarea = document.getElementById("displayarea");
+    let dir = 1;
+    for(let n=0;n<lines.length;n++){
+        const div = document.createElement('div');
+        for(let i=0;i<lines[n].length;i++){
+            const ch = lines[n][i];
+            const code = bftrans(ch,dir);
+            if(code){
+                let span = document.createElement('span');
+                if(n==0&&i==0)span.id="target";
+                span.classList.add(code);
+                span.textContent=ch;
+                div.appendChild(span);
+            }
+            if(ch=="。"){
+                dir = -dir;
+            }
+        }
+        displayarea.appendChild(div);
+    }
+}
+
+function bftrans(ch,dir){
+    return ch.match(/[あかさたなはまやらわがざだばぱ]/) ? "[" :
+           ch.match(/[いきしちにひみ**り**ぎじぢびぴ]/) ? ">" :
+           ch.match(/[うくすつぬふむゆる**ぐずづぶぷ]/) ? "<" :
+           ch.match(/[えけせてねへめ**れ**げぜでべぺ]/) ? "]" :
+           ch.match(/[おこそとのほもよろをごぞどぼぽ]/) ? "." :
+           ch.match(/[\u30e0-\u9fcf]/) ?
+                ( dir>0 ? "+" : "-" ) : undefined;
+}
+const runeDict = "\u16A0\u16A2\u16A7\u16AB\u16B1\u16B2\u16B7\u16BA\u16C7\u16C8\u
+16C9\u16D7\u16DA\u16DE\u16E9\u16CB";
+function rune2num(rune){
+    if(rune=="") return 0;
+    let num = 0;
+    for(let i=0;i<rune.length;i++){
+        num = num*16 + runeDict.indexOf(rune[i]) ;
+    }
+    return num;//rune.charCodeAt(0) - 5792;
+}
+function num2rune(num){
+    if(num==0) return runeDict[0];
+    let rune="";
+    while(num!=0){
+        rune = runeDict[num%16] + rune;
+        num = Math.floor(num/16);
+    }
+    return rune;//String.fromCharCode(5792+num);
+}
+
+function memoryAdd(add){
+    let target = document.getElementById('memtarget');
+    target.textContent = num2rune( add+rune2num(target.textContent) );
+}
+function memoryMove(dir){
+    let target = document.getElementById('memtarget');
+    target.id="";
+    let newtarget;
+    if(dir>0) newtarget=target.nextElementSibling;
+    else      newtarget=target.previousElementSibling;
+    if(!newtarget){
+        newtarget = document.createElement('span');
+        target.parentElement.appendChild(newtarget);
+    }
+    newtarget.id="memtarget";
+}
+
+function bfstep(){
+    let span = document.getElementById('target');
+    let value = rune2num(document.getElementById('memtarget').textContent);
+    span.classList.remove('glow');
+    span.id="";
+    switch(span.className){
+        case '+': memoryAdd(+1); break;
+        case '-': memoryAdd(-1); break;
+        case '>': memoryMove(+1); break;
+        case '<': memoryMove(-1); break;
+        case '[':
+            if(value==0){
+                var count=1;
+                while(true){
+                    span.backgroundcolor="yellow";
+                    span = nextCode(span);
+                    if(span.classList.contains('[')) count+=1;
+                    if(span.classList.contains(']')) count+=-1;
+                    if(span.classList.contains(']')&&count==0)break;
+                }
+            }
+            break;
+        case ']':
+            if(value!=0){
+                var count=-1;
+                while(true){
+                    span = previousCode(span);
+                    if(span.classList.contains('[')) count+=1;
+                    if(span.classList.contains(']')) count+=-1;
+                    if(span.classList.contains('[')&&count==0)break;
+                }
+            }
+            break;
+        case '.':
+            document.getElementById('outputarea').textContent
+                +=String.fromCharCode(value);
+            break;
+    }
+    span.classList.add('glow');
+    const nextCodeElement = nextCode(span);
+    if(nextCodeElement){
+        nextCodeElement.id="target";
+        nextCodeElement.classList.remove('glow');
+    }
+    return nextCodeElement;
+}
+
+function nextCode(span){
+    let next = span.nextElementSibling;
+    if(!next){
+        next = span.parentElement.nextElementSibling.firstElementChild;
+    }
+    return next;
+}
+function previousCode(span){
+    let prev = span.previousElementSibling;
+    if(!prev){
+        prev = span.parentElement.previousElementSibling.lastElementChild;
+    }
+    return prev;
+}
+
+function recite(){
+    document.getElementById('reciteButton').disabled=true;
+    setTimeout(function(){if(bfstep())recite();},20);
+}
+
+//setInterval('document.getElementById('david').
+
+</script>
+</body>
+</html>
+
+
