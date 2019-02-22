@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+textarea  {
+    width: 100%;
+}
+</style>
+</head>
+
+<body>
+<textarea rows="8" id="jp"></textarea>
+<textarea rows="8" id="tokens"></textarea>
+<textarea rows="8" id="hoge"></textarea>
+
+<script>
+document.getElementById('jp').onkeyup = (e)=>{
+    var value = "\n"+e.target.value;
+    value = value.replace(/\s+/g," ");
+    value = value.replace(/-+/g,"}\n{");
+    value = value.replace(/以下のいずれかを満たすとき(.*)とする/g, "condExist($1,");
+    value = value.replace(/以下のすべてを満たすとき(.*)とする/g, "condAll($1,");
+    value = value.replace(/以下を満たすとき(.*)とする/g, "cond($1,");
+    value = value.replace(/が/g," IS ").replace(/かつ/g," AND ").replace(/または/g," OR ");
+    value = value.replace(/ ([^\s]+)以上/g," >= $1");
+    value = value.replace(/ ([^\s]+)以下/g," <= $1");
+    value = value.replace(/([^\s]+) IS (.+) (AND|OR) [^\s]+ IS /g,"($1 IS $2) $3 ($1 IS ");
+    value = value.replace(/([^\s]+) IS ([><=]+ [^ ]+) (AND|OR) ([><=]+ [^ ]+) /g,"($1 $2) $3 ($1 $4) ");
+    document.getElementById('tokens').value = value;//.replace(/ (AND|OR) ([^ ]+) IS/g,"\n$1\n$2 IS");
+    /*
+    var hoge = value.replace(/[><=!]+/g,"op").replace(/AND|OR/g,"logic").split(' ');
+    for(var i=0;i<hoge.length;i++){
+        if( ["IS","op","logic"].indexOf(hoge[i])<0 ){
+            hoge[i] = "value";
+        }
+    }
+    fuga = hoge.join(' ');
+    console.log(fuga);
+    document.getElementById('hoge').value = fuga.replace(/logic value IS/g,"bin\nvalue IS");
+    */
+
+}
+</script>
+
+</body>
+</html>
