@@ -36,9 +36,7 @@ function analyze_indent(text)
         +Array(depth1+1).join(' }');
     return text1;
 }
-document.getElementById('jp').onkeyup = (e)=>{
-    var value = e.target.value;
-   /*
+function jp2code(value){
     value = value.replace(/\s+/g," ");
     value = value.replace(/-+/g,"}\n{");
     value = value.replace(/以下のいずれかを満たすとき(.*)とする/g, "condExist($1,");
@@ -49,7 +47,7 @@ document.getElementById('jp').onkeyup = (e)=>{
     value = value.replace(/ ([^\s]+)以下/g," <= $1");
     value = value.replace(/([^\s]+) IS (.+) (AND|OR) [^\s]+ IS /g,"($1 IS $2) $3 ($1 IS ");
     value = value.replace(/([^\s]+) IS ([><=]+ [^ ]+) (AND|OR) ([><=]+ [^ ]+) /g,"($1 $2) $3 ($1 $4) ");
-    document.getElementById('tokens').value = value;//.replace(/ (AND|OR) ([^ ]+) IS/g,"\n$1\n$2 IS");
+    //document.getElementById('tokens').value = value;//.replace(/ (AND|OR) ([^ ]+) IS/g,"\n$1\n$2 IS");
     /*
     var hoge = value.replace(/[><=!]+/g,"op").replace(/AND|OR/g,"logic").split(' ');
     for(var i=0;i<hoge.length;i++){
@@ -61,9 +59,13 @@ document.getElementById('jp').onkeyup = (e)=>{
     console.log(fuga);
     value = fuga.replace(/logic value IS/g,"bin\nvalue IS");
     */
+    return value;
+}
+document.getElementById('jp').onkeyup = (e)=>{
+    var value = e.target.value;
     value = analyze_indent(value);
+    value = jp2code(value);
     document.getElementById('hoge').value = value;
-
 }
 </script>
 
