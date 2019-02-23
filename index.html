@@ -10,13 +10,35 @@ textarea  {
 </head>
 
 <body>
-<textarea rows="8" id="jp"></textarea>
-<textarea rows="8" id="tokens"></textarea>
-<textarea rows="8" id="hoge"></textarea>
+<textarea rows="12" id="jp"></textarea>
+<textarea rows="12" id="tokens"></textarea>
+<textarea rows="12" id="hoge"></textarea>
 
 <script>
+function analyze_indent(text)
+{
+    var text1 = text, text2;
+    var depth1=0, depth2;
+    for(var i=0;i<999;i++){
+        text2 = text1;
+        depth2= depth1;
+        var m = text1.match(/-+/);
+        if(m==null) break;
+        depth1 = m[0].length;
+        var dd = depth1-depth2;
+        if(dd>0){
+            text1 = text1.replace(m[0],Array(dd+1).join(' {'));
+        }else{
+            text1 = text1.replace(m[0],Array(-dd+2).join(' }')+' {');
+        }
+    }
+    text1 = text1.replace(/\n/g,"")
+        +Array(depth1+1).join(' }');
+    return text1;
+}
 document.getElementById('jp').onkeyup = (e)=>{
-    var value = "\n"+e.target.value;
+    var value = e.target.value;
+   /*
     value = value.replace(/\s+/g," ");
     value = value.replace(/-+/g,"}\n{");
     value = value.replace(/以下のいずれかを満たすとき(.*)とする/g, "condExist($1,");
@@ -37,8 +59,10 @@ document.getElementById('jp').onkeyup = (e)=>{
     }
     fuga = hoge.join(' ');
     console.log(fuga);
-    document.getElementById('hoge').value = fuga.replace(/logic value IS/g,"bin\nvalue IS");
+    value = fuga.replace(/logic value IS/g,"bin\nvalue IS");
     */
+    value = analyze_indent(value);
+    document.getElementById('hoge').value = value;
 
 }
 </script>
