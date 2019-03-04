@@ -7,15 +7,65 @@ textarea  {
     width: 80%;
     background-color: transparent;
 }
+input[type="checkbox"].toggle-button {
+    appearance: none;
+    -webkit-appearance: none;
+    -ms-appearance: none;
+    -moz-appearance: none;
+    margin: 10px;
+    width: 80px;
+    height:25px;
+    border: 0px solid rgba(0,0,0,0.0);
+    border-radius: 50px;
+    background-color: #ddd;
+    transition: background-color .4s ease;
+}
+input[type="checkbox"].toggle-button:checked 
+{
+    background-color: #bbb;
+}
+input[type="checkbox"].toggle-button + label
+{
+    position: relative;
+    display: inline-block;
+    top: -5px;
+    left: -90px;
+    width: 35px;
+    height:35px;
+    border: 0px solid rgba(0,0,0,0.0);
+    border-radius: 50%;
+    background-color: #eee;
+    box-shadow: 0 0 4px rgba(0,0,0,0.4);
+    transition: left .4s ease, background-color 0.4s ease;
+}
+input[type="checkbox"].toggle-button:checked + label
+{
+    position: relative;
+    display: inline-block;
+    top: -5px;
+    left:      -45px;
+    width: 35px;
+    height:35px;
+    border: 0px solid rgba(0,0,0,0.0);
+    border-radius: 50%;
+    background-color:      #00bbd3;
+    box-shadow: 0 0 4px rgba(0,0,0,0.4);
+}
+
+
 </style>
 </head>
 
 <body>
 <textarea rows="12" id="code1"></textarea>
+<div>
+<!--https://hogehogeago.com/article.html?category=Programming&fileName=20160928.html-->
+<button onclick="analyzeAll()">解析</button>
+<button onclick="sample()">サンプル</button>
+<input type="checkbox" id="toggleButton" class="toggle-button">
+<label for="toggleButton"></label>
+</div>
 <textarea rows="12" id="code2"></textarea>
-<textarea rows="12" id="code3"></textarea>
-<textarea rows="12" id="code4"></textarea>
-<textarea rows="12" id="code5"></textarea>
 
 <script>
     /** インデントマークをブレースに置換 **/
@@ -97,7 +147,8 @@ function braceIndentation(value){
 
 
 /** 実行 **/
-document.getElementById('code1').onkeyup = (e)=>{
+document.getElementById('code1').onkeyup = analyzeAll;
+function analyzeAll(e){
     var value = document.getElementById('code1').value;
     value = indent2brace(value);
     value = tokenize(value);
@@ -107,6 +158,27 @@ document.getElementById('code1').onkeyup = (e)=>{
     value = braceIndentation(value);
     document.getElementById('code2').value = value;
 }
+document.getElementById('toggleButton').onchange = (e)=>{
+    document.getElementById('code1').onkeyup = 
+        (e.target.checked) ? analyzeAll : ()=>{} ;
+};
+
+function sample(){
+    document.getElementById('code1').value = 
+"\n- 危険度状態の算出" + 
+"\n-- 以下のすべてを満たすとき、危険状態とする" + 
+"\n--- 距離が危険距離以下" + 
+"\n" + 
+"\n-- 以下のいずれかを満たすとき、警戒状態とする" + 
+"\n--- 距離が警戒距離以下" + 
+"\nかつ危険距離以上" + 
+"\n--- スピードが危険スピード以上" + 
+"\n" + 
+"\n-- 上記を満たさないとき、危険度なしとする" + 
+"\n";
+    analyzeAll();
+}
+
 </script>
 
 </body>
