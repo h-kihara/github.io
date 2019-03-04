@@ -1,0 +1,113 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+textarea  {
+    width: 80%;
+    background-color: transparent;
+}
+</style>
+</head>
+
+<body>
+<textarea rows="12" id="code1"></textarea>
+<textarea rows="12" id="code2"></textarea>
+<textarea rows="12" id="code3"></textarea>
+<textarea rows="12" id="code4"></textarea>
+<textarea rows="12" id="code5"></textarea>
+
+<script>
+    /** インデントマークをブレースに置換 **/
+function indent2brace(text)
+{
+    var text1 = text, text2;
+    var depth1=0, depth2;
+    for(var i=0;i<999;i++){ // equivalent to "while(true){"
+        text2 = text1; depth2= depth1;
+        var m = text1.match(/-+/); if(m==null) break;
+        depth1 = m[0].length;
+        var dd = depth1-depth2;
+        if(dd>0){
+            text1 = text1.replace(m[0],Array( dd+1).join(' {')     );
+        } else {
+            text1 = text1.replace(m[0],Array(-dd+2).join(' }')+' {');
+        }
+    }
+    text1 = text1.replace(/\n/g,"") + Array(depth1+1).join(' }');
+    return text1;
+}
+function tokenize(value){
+    let re = value.replace(/が/g, "が ");
+    re = re.replace(/または/g, " or ");
+    re = re.replace(/かつ/g, " and ");
+    re = re.replace(/以下のすべてを満たすとき、/g, " ∀ ");
+    re = re.replace(/以下のいずれかを満たすとき、/g, " ∃ ");
+    re = re.replace(/以下を満たすとき、/g, " § ");
+    re = re.replace(/上記を満たさないとき、/g, " ￢ ");
+    re = re.replace(/ ([^ ]+)とする/g, " set($1) ");
+    //
+    re = re.replace(/ ([^ ]+が) +([^ ]+) +and +([^ ]+[^が]) /g," ( $1 $2 ) && ( $1 $3 ) ");
+    re = re.replace(/ ([^ ]+が) +([^ ]+) +or +([^ ]+[^が]) /g," ( $1 $2 ) || ( $1 $3 ) ");
+    re = re.replace(/ ([^ ]+が) +([^ ]+) +and +([^ ]+が) +([^ ]+) /g," ( $1 $2 ) && ( $3 $4 ) ");
+    re = re.replace(/ ([^ ]+が) +([^ ]+) +or +([^ ]+が) +([^ ]+) /g," ( $1 $2 ) || ( $3 $4 ) ");
+    //
+    re = re.replace(/ [{\(] +([^ ]+)が +([^ ]+)以上 +[}\)] /g, " ( $1 >= $2 ) ");
+    re = re.replace(/ [{\(] +([^ ]+)が +([^ ]+)以下 +[}\)] /g, " ( $1 <= $2 ) ");
+    return re;
+}
+
+function analyzeCondition(value){
+    var tmp1 = value;
+    var tmp2;
+    while(true){
+        tmp2 = tmp1;
+        tmp2 = tmp2.replace(/{ +∀ +set\(([^\)]+)\) +([^}]+) \) +\(/g, "{ ∀ set($1) $2 ) && ( ");
+        tmp2 = tmp2.replace(/{ +∃ +set\(([^\)]+)\) +([^}]+) \) +\(/g, "{ ∃ set($1) $2 ) || ( ");
+        if( tmp1==tmp2 ) break;
+        tmp1 = tmp2;
+    }
+    re = tmp1;
+    re = re.replace(/{ +[∀∃§] set\(([^\)]+)\) +([^}]+) }/g, "if( $2 ) { ■ = $1; }");
+    re = re.replace(/} +if/g, "} else if");
+    re = re.replace(/{ +￢ +set\(([^\)]+)\) +}/g, "else { ■ = $1; }");
+    re = re.replace(/\( +\( +([^\)]+) \) +\)/g, "( $1 )");
+    return re;
+}
+
+function setReturnValue(value){
+    var retval = value.match(/[^ ]+の算出/)[0].slice(0,-3);
+    var re = value.replace(retval+"の算出","");
+    re = re.replace(/■/g, retval);
+    return re;
+}
+
+function braceIndentation(value){
+    var re = value.replace(/ +{ +/g, "{\n").replace(/ +}/g, "\n}");
+    var list = re.split("\n");
+    var depth = 0;
+    for(var i=0;i<list.length;i++){
+        if(list[i][0]=="}") depth--;
+        list[i] = Array(depth+1).join("  ") + list[i];
+        if(list[i].slice(-1)=="{") depth++;
+    }
+    return list.join("\n");
+}
+
+
+
+/** 実行 **/
+document.getElementById('code1').onkeyup = (e)=>{
+    var value = document.getElementById('code1').value;
+    value = indent2brace(value);
+    value = tokenize(value);
+    value = value.replace( /{ +([^ ∀∃§￢{}][^{}]+) }/g, "( $1 )");
+    value = analyzeCondition(value);
+    value = setReturnValue(value);
+    value = braceIndentation(value);
+    document.getElementById('code2').value = value;
+}
+</script>
+
+</body>
+</html>

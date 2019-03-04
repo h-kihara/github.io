@@ -5,12 +5,18 @@
 <style>
 textarea  {
     width: 100%;
+    background-color: transparent;
+}
+#jp_overlap {
+    position: relative;
+    overflow: hidden;
 }
 </style>
 </head>
 
 <body>
 <textarea rows="12" id="jp"></textarea>
+<textarea rows="12" id="jp_overlap"></textarea>
 <textarea rows="12" id="tokens"></textarea>
 <textarea rows="12" id="hoge"></textarea>
 
@@ -42,12 +48,13 @@ function jp2code(value){
     value = value.replace(/以下のいずれかを満たすとき(.*)とする/g, "condExist($1,");
     value = value.replace(/以下のすべてを満たすとき(.*)とする/g, "condAll($1,");
     value = value.replace(/以下を満たすとき(.*)とする/g, "cond($1,");
+    value = value.replace(/上記を満たさないとき(.*)とする/g, "else($1)");
     value = value.replace(/が/g," IS ").replace(/かつ/g," AND ").replace(/または/g," OR ");
     value = value.replace(/ ([^\s]+)以上/g," >= $1");
     value = value.replace(/ ([^\s]+)以下/g," <= $1");
     value = value.replace(/([^\s]+) IS (.+) (AND|OR) [^\s]+ IS /g,"($1 IS $2) $3 ($1 IS ");
     value = value.replace(/([^\s]+) IS ([><=]+ [^ ]+) (AND|OR) ([><=]+ [^ ]+) /g,"($1 $2) $3 ($1 $4) ");
-    //document.getElementById('tokens').value = value;//.replace(/ (AND|OR) ([^ ]+) IS/g,"\n$1\n$2 IS");
+    value = value.replace(/ (AND|OR) ([^ ]+) IS/g,"\n$1\n$2 IS");
     /*
     var hoge = value.replace(/[><=!]+/g,"op").replace(/AND|OR/g,"logic").split(' ');
     for(var i=0;i<hoge.length;i++){
@@ -61,10 +68,19 @@ function jp2code(value){
     */
     return value;
 }
+function analyze_each_brace(value){
+    var brace = value.match(/{[^{}]+}/g);
+    var re = "";
+    if(brace==null) return;
+    brace.forEach((x)=>{re+="|"+jp2code(x);});
+    return re;
+}
 document.getElementById('jp').onkeyup = (e)=>{
     var value = e.target.value;
     value = analyze_indent(value);
-    value = jp2code(value);
+    document.getElementById('tokens').value = value;
+//    value = jp2code(value);
+    value = analyze_each_brace(value);
     document.getElementById('hoge').value = value;
 }
 </script>
